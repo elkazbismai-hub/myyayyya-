@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday, My Love</title>
+    
+    <!-- Importing Royal & Romantic Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Great+Vibes&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- 1. RESET & BASIC SETUP --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background-color: #0f0c29;
+            color: #fff;
+            font-family: 'Cormorant Garamond', serif;
+            overflow: hidden;
+        }
+
+        /* --- 2. BOOK CONTAINER --- */
+        .book-container {
+            height: 100vh;
+            width: 100vw;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+            position: relative;
+            z-index: 2;
+        }
+
+        .page {
+            height: 100vh;
+            width: 100vw;
+            scroll-snap-align: start;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            padding: 20px;
+            position: relative;
+            background: radial-gradient(circle at center, rgba(60, 10, 30, 0.4), transparent 80%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* --- 3. TEXT CARDS --- */
+        .card {
+            background: rgba(20, 10, 20, 0.6);
+            backdrop-filter: blur(8px);
+            padding: 40px;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 15px;
+            max-width: 700px;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(255, 105, 180, 0.2), inset 0 0 20px rgba(0,0,0,0.5);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 1.5s ease-out;
+        }
+
+        .page.active .card { opacity: 1; transform: translateY(0); }
+
+        h1, h2 {
+            font-family: 'Great Vibes', cursive;
+            color: #ff99cc;
+            text-shadow: 0 0 10px #ff0066;
+            margin-bottom: 20px;
+            line-height: 1.3;
+        }
+        h1 { font-size: 4rem; }
+        h2 { font-size: 3rem; }
+        p { font-size: 1.5rem; line-height: 1.8; color: #e0e0e0; margin-bottom: 15px; }
+        .highlight { color: #ffd700; font-weight: bold; }
+        
+        .signature {
+            font-family: 'Cinzel', serif;
+            margin-top: 30px;
+            font-size: 1.2rem;
+            color: #ffd700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        /* --- 4. CAKE STYLES --- */
+        .cake-container { position: relative; margin-top: 50px; }
+        .cake {
+            position: relative;
+            width: 250px; height: 200px;
+            margin: 0 auto;
+        }
+        .plate {
+            width: 270px; height: 10px;
+            background: #ccc;
+            position: absolute; bottom: -10px; left: -10px;
+            border-radius: 10px;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.5);
+        }
+        .layer {
+            position: absolute; display: block; width: 250px; height: 100px;
+            border-radius: 50%; background: #553c13; /* Chocolate */
+            box-shadow: 0 4px 0px #402c0b, 0 8px 0px #352308, 0 12px 0px #2a1b05;
+            z-index: 10;
+        }
+        .layer-top { top: 0px; background: #7b5c28; z-index: 20; height: 50px; }
+        .layer-middle { top: 35px; background: #f0e68c; /* Cream */ z-index: 15; height: 100px; }
+        .layer-bottom { top: 70px; background: #553c13; z-index: 10; height: 110px; }
+        
+        .icing {
+            position: absolute; top: 2px; left: 5px;
+            background-color: #fce4ec; width: 240px; height: 45px;
+            border-radius: 50%; z-index: 25;
+        }
+
+        /* Candles */
+        .candle-container {
+            position: absolute; top: -30px; width: 100%;
+            display: flex; justify-content: center; gap: 25px;
+            z-index: 30;
+        }
+        .candle {
+            width: 15px; height: 50px;
+            background: linear-gradient(#ff9a9e, #ffc2d1);
+            position: relative;
+            border-radius: 3px;
+        }
+        .flame {
+            width: 15px; height: 30px;
+            background: orange;
+            border-radius: 50% 50% 20% 20%;
+            position: absolute; top: -30px; left: 0;
+            box-shadow: 0 0 10px orange, 0 0 20px yellow;
+            animation: flicker 0.5s infinite alternate;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+        /* Smoke Effect */
+        .smoke {
+            width: 10px; height: 20px;
+            position: absolute; top: -25px; left: 2px;
+            background: rgba(255,255,255,0.4);
+            border-radius: 50%;
+            filter: blur(4px);
+            opacity: 0;
+            animation: smokeRise 1s forwards;
+            pointer-events: none;
+        }
+        @keyframes flicker { from { transform: scale(1); } to { transform: scale(1.1) rotate(2deg); } }
+        @keyframes smokeRise { from { opacity: 0; transform: translateY(0); } to { opacity: 0.8; transform: translateY(-30px) scale(2); } }
+
+        /* Secret Message */
+        #secret-message {
+            margin-top: 40px;
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 1s ease;
+            text-align: center;
+        }
+        #secret-message.show { opacity: 1; transform: scale(1); }
+        .secret-text {
+            font-family: 'Great Vibes', cursive;
+            color: #ffd700; font-size: 2.5rem;
+            text-shadow: 0 0 15px #ffd700;
+        }
+
+        /* --- 5. OVERLAY & MUSIC --- */
+        #overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 9999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            transition: opacity 1s ease;
+        }
+        .btn-open {
+            padding: 15px 50px; font-size: 1.5rem; font-family: 'Cinzel', serif;
+            background: transparent; color: #ffd700; border: 2px solid #ffd700;
+            border-radius: 50px; cursor: pointer; margin-top: 30px;
+        }
+        .music-control {
+            position: fixed; bottom: 20px; right: 20px; z-index: 100;
+            background: rgba(0,0,0,0.5); border: 1px solid #ffd700; color: #ffd700;
+            width: 50px; height: 50px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+        }
+        #canvas-container {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0; pointer-events: none;
+            background: linear-gradient(to bottom, #0f0c29, #302b63, #24243e);
+        }
+        .scroll-indicator { position: absolute; bottom: 30px; font-size: 1.5rem; color: #aaa; animation: bounce 2s infinite; }
+        @keyframes bounce { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-10px);} }
+
+    </style>
+</head>
+<body>
+
+    <!-- INTRO OVERLAY -->
+    <div id="overlay">
+        <h1 style="font-size:3rem; color:#ffd700; text-shadow:0 0 20px #ffd700;">For My Wife</h1>
+        <p style="font-size:1.2rem; color: #ccc;">Please turn up your volume</p>
+        <button class="btn-open" onclick="startJourney()">Open Letter</button>
+    </div>
+
+    <!-- MUSIC -->
+    <audio id="music" loop preload="auto">
+        <source src="assets/audio/music.mp3" type="audio/mp3">
+    </audio>
+    <div class="music-control" onclick="toggleMusic()">🎵</div>
+
+    <!-- BACKGROUND ANIMATION -->
+    <canvas id="canvas-container"></canvas>
+
+    <!-- BOOK CONTENT -->
+    <div class="book-container" id="book" onscroll="checkScroll()">
+        
+        <!-- PAGE 1: TITLE -->
+        <section class="page active">
+            <div class="card">
+                <h1>Happy Birthday,<br>My Love</h1>
+                <p>Scroll down gently...</p>
+                <div class="scroll-indicator">↓</div>
+            </div>
+        </section>
+
+        <!-- PAGE 2: INTRO -->
+        <section class="page">
+            <div class="card">
+                <h2>My Dearest,</h2>
+                <p>As I sit here trying to find the words for today, I realize that "Happy Birthday" is too simple a phrase for what I actually feel.</p>
+                <p>You are the <span class="highlight">light</span> that guides me when things are dark, and the <span class="highlight">warmth</span> that comforts me.</p>
+            </div>
+        </section>
+
+        <!-- PAGE 3: ADMIRATION -->
+        <section class="page">
+            <div class="card">
+                <h2>The Little Things</h2>
+                <p>It's not just the big moments I cherish; it's the quiet ones. The way you smile when you think no one is watching, and the peace I feel just sitting beside you.</p>
+                <p>In a chaotic world, you are my sanctuary.</p>
+            </div>
+        </section>
+
+        <!-- PAGE 4: SUPPORT -->
+        <section class="page">
+            <div class="card">
+                <h2>My Rock</h2>
+                <p>Through every high and every low, you have stood by me. Your strength inspires me to be a better man every single day.</p>
+                <p>Thank you for your patience, your kindness, and for loving me.</p>
+            </div>
+        </section>
+
+        <!-- PAGE 5: FUTURE -->
+        <section class="page">
+            <div class="card">
+                <h2>Looking Forward</h2>
+                <p>My life truly began the moment you walked into it. I love the memories we've built, but I am even more excited for the years to come.</p>
+                <p>As you blow out your candles today, know that my only wish is to see you happy.</p>
+            </div>
+        </section>
+
+        <!-- PAGE 6: POEM -->
+        <section class="page">
+            <div class="card" style="border-color: #ff99cc;">
+                <h2>A Promise</h2>
+                <p style="font-style: italic; color: #ffccff;">
+                    "Stars may fade and suns may set,<br>
+                    But my heart will not forget.<br>
+                    In your eyes, I found my home,<br>
+                    With you, I'll never walk alone."
+                </p>
+                <div class="signature">
+                    Forever Yours,<br>
+                    <span style="font-size: 2rem; color: #ff0066; text-shadow: 0 0 15px #ff0066;">Ismail</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- PAGE 7: THE CAKE (INTERACTIVE) -->
+        <section class="page">
+            <div class="card" style="border: none; background: rgba(0,0,0,0.3); box-shadow: none;">
+                <h2 id="wish-text">Make a Wish...</h2>
+                <p id="wish-subtext">Click the flames to blow out the candles!</p>
+                
+                <div class="cake-container">
+                    <div class="cake">
+                        <div class="plate"></div>
+                        <div class="layer layer-bottom"></div>
+                        <div class="layer layer-middle"></div>
+                        <div class="layer layer-top"></div>
+                        <div class="icing"></div>
+                        
+                        <div class="candle-container">
+                            <!-- 5 Candles -->
+                            <div class="candle">
+                                <div class="flame" onclick="blowCandle(this)"></div>
+                            </div>
+                            <div class="candle">
+                                <div class="flame" onclick="blowCandle(this)"></div>
+                            </div>
+                            <div class="candle">
+                                <div class="flame" onclick="blowCandle(this)"></div>
+                            </div>
+                            <div class="candle">
+                                <div class="flame" onclick="blowCandle(this)"></div>
+                            </div>
+                            <div class="candle">
+                                <div class="flame" onclick="blowCandle(this)"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECRET MESSAGE REVEAL -->
+                <div id="secret-message">
+                    <br>
+                    <p class="secret-text">✨ My Secret Wish: ✨</p>
+                    <p style="font-size: 1.4rem; color: #fff;">
+                        To spend a hundred more birthdays holding your hand.<br>
+                        I love you endlessly.
+                    </p>
+                </div>
+
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        // --- MUSIC & OVERLAY ---
+        const overlay = document.getElementById('overlay');
+        const music = document.getElementById('music');
+        const pages = document.querySelectorAll('.page');
+
+        function startJourney() {
+            music.volume = 0.6;
+            music.play().catch(e => alert("Click the 🎵 icon to play music!"));
+            overlay.style.opacity = '0';
+            setTimeout(() => { overlay.style.display = 'none'; }, 1000);
+        }
+
+        function toggleMusic() {
+            if (music.paused) music.play();
+            else music.pause();
+        }
+
+        // --- SCROLL ANIMATION ---
+        function checkScroll() {
+            const triggerBottom = window.innerHeight / 5 * 4;
+            pages.forEach((page) => {
+                const boxTop = page.getBoundingClientRect().top;
+                if(boxTop < triggerBottom && boxTop > -triggerBottom) page.classList.add('active');
+                else page.classList.remove('active');
+            });
+        }
+        checkScroll();
+
+        // --- CAKE LOGIC ---
+        let candlesBlown = 0;
+        const totalCandles = 5;
+
+        function blowCandle(flameElement) {
+            if (flameElement.style.opacity === '0') return; // Already blown
+
+            // Hide flame
+            flameElement.style.opacity = '0';
+            flameElement.style.cursor = 'default';
+
+            // Create smoke
+            const smoke = document.createElement('div');
+            smoke.classList.add('smoke');
+            flameElement.parentElement.appendChild(smoke);
+
+            candlesBlown++;
+
+            // Check if all blown
+            if (candlesBlown === totalCandles) {
+                setTimeout(revealSecret, 500);
+            }
+        }
+
+        function revealSecret() {
+            document.getElementById('wish-text').innerText = "Happy Birthday!";
+            document.getElementById('wish-subtext').style.opacity = '0';
+            document.getElementById('secret-message').classList.add('show');
+            launchConfetti();
+        }
+
+        // --- FIREFLIES ---
+        const canvas = document.getElementById('canvas-container');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        const particlesArray = [];
+        
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 1;
+                this.speedX = Math.random() * 1 - 0.5;
+                this.speedY = Math.random() * 1 - 0.5;
+                this.color = `rgba(255, 215, 0, ${Math.random() * 0.5 + 0.3})`;
+            }
+            update() {
+                this.x += this.speedX; this.y += this.speedY;
+                if (this.size > 0.2) this.size -= 0.01;
+                if (this.size <= 0.2) {
+                    this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height; this.size = Math.random() * 2 + 1;
+                }
+            }
+            draw() {
+                ctx.fillStyle = this.color; ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+        function init() { for (let i=0; i<80; i++) particlesArray.push(new Particle()); }
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i=0; i<particlesArray.length; i++) { particlesArray[i].update(); particlesArray[i].draw(); }
+            requestAnimationFrame(animate);
+        }
+        init(); animate();
+
+        // --- CONFETTI EFFECT (Simple) ---
+        function launchConfetti() {
+            for(let i=0; i<100; i++) {
+                const conf = document.createElement('div');
+                conf.style.position = 'fixed';
+                conf.style.left = Math.random() * 100 + 'vw';
+                conf.style.top = '-10px';
+                conf.style.width = '10px'; conf.style.height = '10px';
+                conf.style.backgroundColor = ['#ff0', '#f0f', '#0ff', '#0f0'][Math.floor(Math.random()*4)];
+                conf.style.transition = 'top 3s linear, transform 3s ease';
+                conf.style.zIndex = '9999';
+                document.body.appendChild(conf);
+                
+                setTimeout(() => {
+                    conf.style.top = '100vh';
+                    conf.style.transform = `rotate(${Math.random()*360}deg)`;
+                }, 100);
+            }
+        }
+
+    </script>
+</body>
+</html>
